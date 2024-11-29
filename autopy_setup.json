@@ -1,0 +1,105 @@
+{
+ "version": "auto-py-to-exe-configuration_v1",
+ "pyinstallerOptions": [
+  {
+   "optionDest": "noconfirm",
+   "value": true
+  },
+  {
+   "optionDest": "filenames",
+   "value": "C:/Users/PrasanaKumar/Desktop/Bitbucket/bd-risk-scanning/main.py"
+  },
+  {
+   "optionDest": "onefile",
+   "value": true
+  },
+  {
+   "optionDest": "console",
+   "value": true
+  },
+  {
+   "optionDest": "name",
+   "value": "RiskScanner"
+  },
+  {
+   "optionDest": "clean_build",
+   "value": true
+  },
+  {
+   "optionDest": "optimize",
+   "value": "2"
+  },
+  {
+   "optionDest": "strip",
+   "value": false
+  },
+  {
+   "optionDest": "noupx",
+   "value": false
+  },
+  {
+   "optionDest": "disable_windowed_traceback",
+   "value": false
+  },
+  {
+   "optionDest": "version_file",
+   "value": "C:/Users/PrasanaKumar/Desktop/Bitbucket/bd-risk-scanning/version.txt"
+  },
+  {
+   "optionDest": "uac_admin",
+   "value": false
+  },
+  {
+   "optionDest": "uac_uiaccess",
+   "value": false
+  },
+  {
+   "optionDest": "argv_emulation",
+   "value": false
+  },
+  {
+   "optionDest": "bootloader_ignore_signals",
+   "value": false
+  },
+  {
+   "optionDest": "collect_submodules",
+   "value": "pandas"
+  },
+  {
+   "optionDest": "collect_submodules",
+   "value": "datetime"
+  },
+  {
+   "optionDest": "datas",
+   "value": "C:/Users/PrasanaKumar/Desktop/Bitbucket/bd-risk-scanning/extraction.py;."
+  },
+  {
+   "optionDest": "collect_submodules",
+   "value": "pdfplumber"
+  },
+  {
+   "optionDest": "collect_submodules",
+   "value": "fitz"
+  },
+  {
+   "optionDest": "collect_submodules",
+   "value": "pptx"
+  },
+  {
+   "optionDest": "collect_submodules",
+   "value": "docx"
+  },
+  {
+   "optionDest": "collect_submodules",
+   "value": "PIL"
+  },
+  {
+   "optionDest": "collect_submodules",
+   "value": "tqdm"
+  }
+ ],
+ "nonPyinstallerOptions": {
+  "increaseRecursionLimit": true,
+  "manualArguments": ""
+ }
+}
