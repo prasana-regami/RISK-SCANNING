@@ -3,16 +3,22 @@ import json
 import logging
 import argparse
 from tqdm import tqdm
+from datetime import datetime
 
 import pandas as pd
 from extraction import (
     read_file,
+    read_excel_file,
     read_rules_file,
     extract_text_from_pdf,
     extract_text_from_ppt,
     extract_text_from_docx,
     list_files_in_directory,
     search_words_in_text,
+    extract_text_from_log,
+    extract_text_from_outlook,
+    extract_text_from_eml,
+    extract_text_from_yaml,
 )
 
 
@@ -31,6 +37,13 @@ PROCESSORS = {
     ".docx": lambda file_path, logging: extract_text_from_docx(file_path, logging),
     ".json": lambda file_path, logging: logging.info(f"Processing JSON: {file_path}") or json.dumps(json.load(open(file_path, "r")), indent=4),
     ".txt": lambda file_path, logging: logging.info(f"Processing TXT: {file_path}") or open(file_path, "r").read(),
+    ".csv": lambda file_path, logging: read_excel_file(file_path, logging),
+    ".xls": lambda file_path, logging: read_excel_file(file_path, logging), 
+    ".xlsx": lambda file_path, logging: read_excel_file(file_path, logging),
+    ".log" : lambda file_path, logging : extract_text_from_log(file_path,logging),
+    ".msg": lambda file_path, logging: extract_text_from_outlook(file_path, logging),
+    ".eml": lambda file_path, logging: extract_text_from_eml(file_path, logging),
+    ".yaml": lambda file_path, logging: extract_text_from_yaml(file_path, logging),
 }
 
 def terminal_args():
@@ -45,7 +58,6 @@ def terminal_args():
 
     args = parser.parse_args()
 
-    # Check directory for files
     directory_path = args.directory
     files = list_files_in_directory(directory_path,logging)
     if not files:
@@ -54,13 +66,11 @@ def terminal_args():
 
     logging.info(f"Files found in '{directory_path}': {len(files)}")
 
-    # Check rules file
     rules_path = args.rules
     if not os.path.exists(rules_path):
         logging.error(f"The rules file '{rules_path}' does not exist.")
         return None
 
-    # Check or create output directory
     output_directory = args.output
     if not os.path.exists(output_directory):
         logging.warning(
@@ -86,11 +96,43 @@ def process_file(file_path, logging):
         return None
     
 def save_results_to_excel(results, output_file):
-    # Convert results to a DataFrame
     df = pd.DataFrame(results, columns=["File Name", "File Path", "Search Keyword", "Status"])
     df.to_excel(output_file, index=False)
     logging.info(f"Results saved to {output_file}")
 
+      
+def create_json_report(input_path, output_path, rules_path, processed_files, matched_files, unmatched_files, file_word_counts):
+    """
+    Create a JSON report after processing files.
+
+    Args:
+        input_path (str): Path to the input directory or file.
+        output_path (str): Path to the output directory or file.
+        rules_path (str): Path to the rules directory or file.
+        processed_files (list): List of all processed file paths.
+        matched_files (list): List of matched file paths.
+        unmatched_files (list): List of unmatched file paths.
+        file_word_counts (dict): Dictionary containing word counts for matched and unmatched keywords in each file.
+    """
+    report = {
+        "input_path": input_path,
+        "output_path": output_path,
+        "rules_path": rules_path,
+        "processed_files_count": len(processed_files),
+        "matched_files_count": len(matched_files),
+        "unmatched_files_count": len(unmatched_files),
+        "processed_files": processed_files,
+        "matched_files": matched_files,
+        "unmatched_files": unmatched_files,
+        "file_word_counts": file_word_counts,  
+    }
+
+    report_file = os.path.join(output_path, "processing_report.json")
+
+    with open(report_file, 'w') as json_file:
+        json.dump(report, json_file, indent=4)
+
+    logging.info(f"Report saved to {report_file}")
 
 def main():
     input_args = terminal_args()
@@ -105,43 +147,71 @@ def main():
 
     try:
         data = read_file(rules, logging)
-        logging.info("read the rules data")  # Preview the data
+        logging.info("read the rules data")  
     except Exception as e:
         logging.error(f"Failed to process the file: {e}")
 
     all_results = []
     keyword_data = data.get('keywords')
+    
+    processed_files = set() 
+    matched_files = set()  
+    unmatched_files = set()  
+    file_word_counts = {}  
+    
     with tqdm(total=len(files), desc="Scanning", unit="file") as pbar:
         for file in files:
             file_path = os.path.join(directory_path, file)
             
-            # Process file and extract text
             extracted_text = process_file(file_path, logging)
+            processed_files.add(file_path)  
 
             if extracted_text:
-                # Search for words in extracted text
                 keywords = list(keyword_data) if not keyword_data.empty else []
 
                 word_results = search_words_in_text(extracted_text, keywords, logging)
                 
-                # If any words are found, store the results
-                for word in word_results:
-                    all_results.append([file.split('\\')[-1], file_path, word, "matched"])
-
-                # If no words are found, still log the result as not matched
-                if not word_results:
-                    for word in word_results:
+                matched_count = 0
+                unmatched_count = 0
+                file_matched = False  
+                
+                for word, result in word_results.items():
+                    if result == True:
+                        all_results.append([file.split('\\')[-1], file_path, word, "matched"])
+                        matched_files.add(file_path)  
+                        matched_count += 1
+                        file_matched = True  
+                    elif result == False:
                         all_results.append([file.split('\\')[-1], file_path, word, "not matched"])
+                        unmatched_count += 1
+
+                
+                file_word_counts[os.path.basename(file_path)] = {
+                    "matched_count": matched_count,
+                    "unmatched_count": unmatched_count
+                }
+                
+                if not file_matched:
+                    unmatched_files.add(file_path) 
                 
                 logging.info(f"{file} - Scanning completed")
 
-            # Update the progress bar after scanning each file
             pbar.update(1)
     
-    
-    # Save the results to Excel
-    output_file = os.path.join(output_directory, "search_results.xlsx")
+   
+    date_time_string = datetime.now().strftime("%Y-%m-%d_%HH_%MM")
+    output_file = os.path.join(output_directory, f"Output_{date_time_string}.xlsx")
     save_results_to_excel(all_results, output_file)
+
+    create_json_report(
+        input_path=directory_path,
+        output_path=output_directory,
+        rules_path=rules,
+        processed_files=list(processed_files),
+        matched_files=list(matched_files),
+        unmatched_files=list(unmatched_files),
+        file_word_counts=file_word_counts 
+    )
 
 
 if __name__ == "__main__":
