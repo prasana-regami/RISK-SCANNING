@@ -23,11 +23,11 @@
   },
   {
    "optionDest": "clean_build",
-   "value": false
+   "value": true
   },
   {
    "optionDest": "optimize",
-   "value": "-1"
+   "value": "2"
   },
   {
    "optionDest": "strip",
@@ -96,10 +96,6 @@
   {
    "optionDest": "collect_submodules",
    "value": "tqdm"
-  },
-  {
-   "optionDest": "collect_submodules",
-   "value": "datetime"
   }
  ],
  "nonPyinstallerOptions": {

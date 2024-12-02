@@ -3,7 +3,6 @@ import json
 import logging
 import argparse
 from tqdm import tqdm
-from datetime import datetime
 
 import pandas as pd
 from extraction import (
@@ -125,13 +124,9 @@ def main():
 
                 word_results = search_words_in_text(extracted_text, keywords, logging)
                 
-                
                 # If any words are found, store the results
-                for word,result in word_results.items():
-                    if result == True:
-                        all_results.append([file.split('\\')[-1], file_path, word, "matched"])
-                    if result == False:
-                        all_results.append([file.split('\\')[-1], file_path, word, "not matched"])
+                for word in word_results:
+                    all_results.append([file.split('\\')[-1], file_path, word, "matched"])
 
                 # If no words are found, still log the result as not matched
                 if not word_results:
@@ -143,9 +138,9 @@ def main():
             # Update the progress bar after scanning each file
             pbar.update(1)
     
-    date_time_string = datetime.now().strftime("%Y-%m-%d_%HH_%MM")
+    
     # Save the results to Excel
-    output_file = os.path.join(output_directory, f"Output_{date_time_string}.xlsx")
+    output_file = os.path.join(output_directory, "search_results.xlsx")
     save_results_to_excel(all_results, output_file)
 
 
