@@ -1,7 +1,7 @@
 VSVersionInfo(
     ffi=FixedFileInfo(
-        filevers=(1, 0, 0, 2),
-        prodvers=(1, 0, 0, 2),
+        filevers=(1, 0, 0, 1),
+        prodvers=(1, 0, 0, 1),
         mask=0x3f,
         flags=0x0,
         OS=0x4,
@@ -22,7 +22,7 @@ VSVersionInfo(
                         StringStruct('LegalCopyright', 'Copyright (C) 2024 Regami Solutions'),
                         StringStruct('OriginalFilename', 'RiskScanner.exe'),
                         StringStruct('ProductName', 'RIsk Scanner'),
-                        StringStruct('ProductVersion', '1.0.2')
+                        StringStruct('ProductVersion', '1.0.1')
                     ]
                 )
             ]   
