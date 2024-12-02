@@ -23,7 +23,7 @@ python .\main.py -d "C:\Users\PrasanaKumar\Downloads\test" -r "C:\Users\PrasanaK
 -o : Output Directory - Path to save the output files. <br>
 
 
-File Formats to scannable :
+File Formats to scannable using this Application:
 1-.txt
 2-.docx
 3-.pdf
