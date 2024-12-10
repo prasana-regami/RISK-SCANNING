@@ -160,12 +160,33 @@ def extract_text_from_dataframe(df):
             text.append(value)
     return text
 
-def extract_text_from_csv(file_path):
+def extract_text_from_csv(file_path, encoding='utf-8'):
+    """
+    Extract text from a CSV file, flatten the DataFrame, and return all string values.
+    
+    Args:
+        file_path (str): Path to the CSV file.
+        encoding (str): The encoding to use for reading the CSV file (default is 'utf-8').
+        
+    Returns:
+        list: List of text values extracted from the CSV file.
+    """
     text = []
-    df = pd.read_csv(file_path)
+    
+    try:
+        df = pd.read_csv(file_path, encoding=encoding)
+    except UnicodeDecodeError as e:
+        print(f"UnicodeDecodeError encountered: {e}. Trying a different encoding.")
+        try:
+            df = pd.read_csv(file_path, encoding='ISO-8859-1')
+        except Exception as e:
+            print(f"Error reading file with encoding 'ISO-8859-1': {e}")
+            return []
+    
     for value in df.values.flatten():
         if isinstance(value, str):
             text.append(value)
+    
     return text
 
 def read_file(file_path, logging):
